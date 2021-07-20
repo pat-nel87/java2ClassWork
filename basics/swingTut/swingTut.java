@@ -1,9 +1,10 @@
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.Color;
 import javax.swing.*;
 import java.util.Random;
 
-public class swingTut {
+public class guessNumber {
 
 	static int genRandom() {
 		
@@ -31,12 +32,22 @@ public class swingTut {
 		return 0;
 	}
 	
-        static void result(int compareValue, JFrame f, JButton b, JTextField tf) {
+	static long timer() {
+	       
+	        long start = System.currentTimeMillis();
+	        long seconds = start / 1000;
+			       
+	        return seconds;
+	}
+
+	
+        static void result(int compareValue, JFrame f, JButton b, JTextField tf, JDialog d) {
 
                 if (compareValue == 1) {
                         f.getContentPane().setBackground(Color.GREEN);
                         b.setBackground(Color.RED);
                 	tf.setEditable(false);
+			d.setVisible(true);
 		}
                 else if (compareValue == 2) {
                         f.getContentPane().setBackground(Color.BLUE);
@@ -49,18 +60,35 @@ public class swingTut {
 
         }
 	
+	static void setCount(int attempts) {
+		
+		attempts = attempts + 1;
+	
+	}	
 
-
+	
 	public static void main(String[] args) {
+		
+		int compNumber = genRandom();
+		int attempts = 0;
+		long startTime = timer();        
+		
 
-		JFrame f = new JFrame("Patrick's Java Experiments!");
+		JFrame f = new JFrame("Guess my number!");
 		f.getContentPane().setBackground(Color.YELLOW);
+		JDialog d;
+		d = new JDialog(f, "You've won!", true);
+		d.setLayout(new FlowLayout());
+		d.add(new JLabel(String.valueOf(attempts)));
+		d.setVisible(false);
 
 		final JTextField tf=new JTextField();
 		tf.setBounds(50,50,150,20);
-			
+				
 		JLabel firstLabel;
 		JLabel sndLabel;
+	
+
 
 		firstLabel=new JLabel("Guess my Number!");
 		firstLabel.setBounds(50,25,200,20);
@@ -75,7 +103,8 @@ public class swingTut {
 		
 			public void actionPerformed(ActionEvent e){
 				
-				String randomValue = String.valueOf(genRandom());
+				setCount(attempts);
+				String randomValue = String.valueOf(compNumber);
 				String myGuess = tf.getText();
 				
 				int randInt = Integer.parseInt(randomValue);
@@ -84,7 +113,7 @@ public class swingTut {
 				sndLabel.setText(myGuess);		
 				tf.setText(randomValue);
 					
-				result(hotOrCold(randInt, myInt), f, b, tf);
+				result(hotOrCold(randInt, myInt), f, b, tf, d);
 				
 			}
 		
@@ -92,7 +121,7 @@ public class swingTut {
 
 		f.add(b); f.add(tf); f.add(firstLabel); f.add(sndLabel); //adding button in JFrame
 
-		f.setSize(400,500); // w, h
+		f.setSize(250,250); // w, h
 		f.setLayout(null);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
