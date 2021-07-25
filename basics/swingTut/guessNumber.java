@@ -3,8 +3,11 @@ import java.awt.event.*;
 import java.awt.Color;
 import javax.swing.*;
 import java.util.Random;
+//import Package.guessNumber.*;
 
 public class guessNumber {
+
+	public static int attempts;
 
 	static int genRandom() {
 		
@@ -42,11 +45,14 @@ public class guessNumber {
 
 	
         static void result(int compareValue, JFrame f, JButton b, JTextField tf, JDialog d) {
-
+		
+		guessNumber.attempts++;
+		
                 if (compareValue == 1) {
                         f.getContentPane().setBackground(Color.GREEN);
                         b.setBackground(Color.RED);
                 	tf.setEditable(false);
+			d.add(new JLabel(String.valueOf(guessNumber.attempts)));
 			d.setVisible(true);
 		}
                 else if (compareValue == 2) {
@@ -59,18 +65,10 @@ public class guessNumber {
                 }
 
         }
-	
-	static void setCount(int attempts) {
-		
-		attempts = attempts + 1;
-	
-	}	
 
-	
 	public static void main(String[] args) {
 		
 		int compNumber = genRandom();
-		int attempts = 0;
 		long startTime = timer();        
 		
 
@@ -79,7 +77,6 @@ public class guessNumber {
 		JDialog d;
 		d = new JDialog(f, "You've won!", true);
 		d.setLayout(new FlowLayout());
-		d.add(new JLabel(String.valueOf(attempts)));
 		d.setVisible(false);
 
 		final JTextField tf=new JTextField();
@@ -90,20 +87,20 @@ public class guessNumber {
 	
 
 
-		firstLabel=new JLabel("Guess my Number!");
-		firstLabel.setBounds(50,25,200,20);
+		firstLabel=new JLabel("Guess the Number ");
+		firstLabel.setBounds(50,25,250,20);
 				
-	        sndLabel =new JLabel(" ");
-                sndLabel.setBounds(50,75,200,20);
+	        sndLabel =new JLabel("Between 1-1000 ");
+                sndLabel.setBounds(50,75,250,20);
 
-		JButton b = new JButton("click here");
+		JButton b = new JButton("Submit");
 		b.setBounds(75, 100, 95, 30); //x,y,w,h
 		b.setBackground(Color.GREEN);
 		b.addActionListener(new ActionListener(){
 		
 			public void actionPerformed(ActionEvent e){
 				
-				setCount(attempts);
+				
 				String randomValue = String.valueOf(compNumber);
 				String myGuess = tf.getText();
 				
@@ -119,7 +116,7 @@ public class guessNumber {
 		
 		});
 
-		f.add(b); f.add(tf); f.add(firstLabel); f.add(sndLabel); //adding button in JFrame
+		f.add(b); f.add(tf); f.add(firstLabel); f.add(sndLabel); 
 
 		f.setSize(250,250); // w, h
 		f.setLayout(null);
