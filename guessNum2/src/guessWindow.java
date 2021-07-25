@@ -1,3 +1,8 @@
+// Patrick Nelson
+// Computer Science 2 HW - Assignment one
+//class which takes care of basic config of guess number games's UI
+//
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

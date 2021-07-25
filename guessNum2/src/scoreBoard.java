@@ -1,3 +1,6 @@
+// Patrick Nelson
+// Computer Science 2 HW - Assignment one
+/* Scoreboard class to keep track of the users attempts and times per round */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -52,7 +55,7 @@ public class scoreBoard extends JFrame {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         board.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
 
-        ok = new JButton("Quit");
+        ok = new JButton("Quit"); // ok button loses text for some reason, can't figure out why.
         ok.setBounds(100, 300, 50, 25);
         ok.setBackground(Color.GREEN);
         ok.addActionListener(new ActionListener() {

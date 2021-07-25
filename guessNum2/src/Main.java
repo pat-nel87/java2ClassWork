@@ -1,3 +1,7 @@
+// Patrick Nelson
+// Computer Science 2 HW - Assignment one
+// Main class for Guess Number Game
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -32,7 +36,8 @@ public class Main {
 
     static void result(int compVal, int playerGuess) {
 
-        Main.gWin.label1.setText(String.valueOf(compVal));
+        //handles game logic
+        //increments attempts and compares compVal to player guess
         Main.attempts++;
 
         long attemptTime = time() - Main.startTime;
@@ -77,6 +82,8 @@ public class Main {
     }
 
     public static void run() {
+            // sets time, computer's number, creates guessWindow UI object
+            // and add event listeners to UI buttons
 
             Main.startTime = time();
             Random ranNum = new Random();
@@ -90,7 +97,8 @@ public class Main {
             gWin.b.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-
+                    // submit button on main UI
+                    // handles exception of blank submission
                     try
                     {
                         playerGuess = Integer.parseInt(gWin.tf.getText());
@@ -105,7 +113,7 @@ public class Main {
             });
 
             gWin.q1.addActionListener(new ActionListener() {
-
+                // quit button on main UI
                 public void actionPerformed(ActionEvent e) {
 
                   //  currentGame.wins.setText(currentGame.tallyUp());
@@ -117,6 +125,7 @@ public class Main {
             });
 
             gWin.p.addActionListener(new ActionListener() {
+                // play again button on correct answer UI box
                 public void actionPerformed(ActionEvent e) {
                     reset(gWin);
                     gWin.d.dispose();
@@ -124,6 +133,7 @@ public class Main {
             });
 
             gWin.q2.addActionListener(new ActionListener() {
+                // quit button on correct answer UI box
                 public void actionPerformed(ActionEvent e) {
 
                     gWin.d.dispose();
@@ -137,6 +147,7 @@ public class Main {
 
     public static void main(String[] args) {
          {
+                //creates instance of scoreboard, executes run function.
             Main.currentGame = new scoreBoard();
             run();
 
