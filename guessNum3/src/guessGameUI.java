@@ -16,6 +16,8 @@ public class guessGameUI extends gameWindow {
          */
         this.f.add(tf); this.f.add(label1); this.f.add(label2); this.f.add(submit); this.f.add(quit1);
         this.d.add(attNum); this.d.add(clock); this.d.add(playAgain); this.d.add(quit2);
+
+        this.f.setVisible(true);
     }
 
 
@@ -40,6 +42,7 @@ public class guessGameUI extends gameWindow {
 
             this.playAgain = addButton("Play again", 50, 75, 150, 20, Color.RED);
             this.quit2 = addButton("Quit", 50, 140, 150, 20, Color.RED);
+            this.addElements();
     }
 
 }
