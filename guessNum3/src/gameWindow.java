@@ -34,7 +34,7 @@ public class gameWindow extends JFrame {
         JButton b = new JButton(text);
         b.setBounds(x, y, width, height);
         b.setBackground(btnColor);
-      //  f.add(b); // this might be trouble!
+
         return b;
     }
 
@@ -43,7 +43,7 @@ public class gameWindow extends JFrame {
 
         JLabel label = new JLabel(text);
         label.setBounds(x, y, width, height);
-        //f.add(label);
+
 
         return label;
     }
@@ -53,7 +53,7 @@ public class gameWindow extends JFrame {
 
         JTextField tf = new JTextField();
         tf.setBounds(x, y, width, height);
-        //f.add(tf);
+
 
         return tf;
     }

@@ -20,7 +20,6 @@ public class guessGameUI extends gameWindow {
         this.f.setVisible(true);
     }
 
-
     guessGameUI() {
 
             //sets up main game window, frame f
