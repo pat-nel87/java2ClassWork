@@ -9,8 +9,8 @@ public class TwentyFourTwelve {
 
     public String convert(String originalTime) throws ParseException {
         //System.out.println(originalTime);
-        DateFormat inputFormat = new SimpleDateFormat("HH:mm:ss");
-        DateFormat outputFormat = new SimpleDateFormat("hh:mm:ss aa");
+        DateFormat inputFormat = new SimpleDateFormat("HH:mm");
+        DateFormat outputFormat = new SimpleDateFormat("hh:mm");
         Date givenDate = null;
         givenDate = inputFormat.parse(originalTime);
 
@@ -27,7 +27,7 @@ public class TwentyFourTwelve {
     }
 
     public static void main(String[] args) {
-        TwentyFourTwelve x = new TwentyFourTwelve("22:22:12");
+        TwentyFourTwelve x = new TwentyFourTwelve("22:22");
         System.out.println(x.newTime);
         TwentyFourTwelve y = new TwentyFourTwelve("#4!567");
 

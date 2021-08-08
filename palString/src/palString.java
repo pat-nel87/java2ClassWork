@@ -30,7 +30,7 @@ public class palString {
 
     public static void main(String[] args) {
 
-        palString test = new palString("blob");
+        palString test = new palString("racecar");
 
     }
 
