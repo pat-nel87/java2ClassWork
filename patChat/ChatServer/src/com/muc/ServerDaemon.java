@@ -40,17 +40,18 @@ public class ServerDaemon extends Thread {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
-
-
         while ( (line = reader.readLine()) != null) {
             String[] tokens = StringUtils.split(line);
             if (tokens != null && tokens.length > 0) {
                 String cmd = tokens[0];
-                if ("quit".equalsIgnoreCase(cmd)) {
-                    System.out.println("Ready to quit?");
+                if ("logoff".equals(cmd) || "quit".equals(cmd)) {
+                    handleLogoff();
                     break;
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
+                } else if ("msg".equalsIgnoreCase(cmd)) {
+                    String[] tokensMsg = StringUtils.split(line,null,3);
+                    sendMessage(tokensMsg);
             } else {
                 String msg = "unknown " + cmd + "\n";
                 outputStream.write(msg.getBytes());
@@ -58,6 +59,32 @@ public class ServerDaemon extends Thread {
             }
         }
         clientSocket.close();
+    }
+
+    private void sendMessage(String[] tokens) throws IOException {
+        String sendUser = tokens[1];
+        String msgBody = tokens[2];
+
+        List<ServerDaemon> daemonList = server.getDaemonList();
+        for(ServerDaemon daemon : daemonList) {
+            if (sendUser.equalsIgnoreCase(daemon.getLogin())) {
+                String outMsg = "msg " + login + " " + msgBody + "\n";
+                daemon.send(outMsg);
+            }
+        }
+    }
+
+    private void handleLogoff() throws IOException {
+        server.removeDaemon(this);
+        List<ServerDaemon> daemonList = server.getDaemonList();
+        String onMsg = "\n User " + login + " is offline " + "\n";
+        for (ServerDaemon daemon : daemonList) {
+            if (!login.equals(daemon.getLogin())) {
+                daemon.send(onMsg);
+            }
+        }
+            clientSocket.close();
+
     }
 
     public String getLogin() { return login; }
@@ -72,15 +99,26 @@ public class ServerDaemon extends Thread {
             String password = tokens[2];
 
             if ((login.equals("guest") && password.equals("guest")) || login.equals("guest2") && password.equals("guest2")) {
-                String msg = "ok login";
+                String msg = "ok login" + "\n";
                 outputStream.write(msg.getBytes());
                 this.login = login;
 
-                String onMsg = "online!" + login + "\n";
+                String onMsg = "\n User " + login + " is now logged in" + "\n";
                 List<ServerDaemon> daemonList = server.getDaemonList();
-                for(ServerDaemon daemon : daemonList) {
-                    daemon.send(onMsg);
 
+                for(ServerDaemon daemon : daemonList) {
+                    if (!login.equals(daemon.getLogin())) {
+                        if (daemon.getLogin() != null) {
+                            String msg2 = "online " + daemon.getLogin();
+                            send(msg2);
+                        }
+                    }
+                }
+
+                for(ServerDaemon daemon : daemonList) {
+                    if (!login.equals(daemon.getLogin())) {
+                        daemon.send(onMsg);
+                    }
                 }
 
             } else {
@@ -94,6 +132,8 @@ public class ServerDaemon extends Thread {
     }
 
     private void send(String onMsg) throws IOException {
-        outputStream.write(onMsg.getBytes());
+        if (login != null) { outputStream.write(onMsg.getBytes());
+        }
     }
+
 }

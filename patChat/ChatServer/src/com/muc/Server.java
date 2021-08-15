@@ -38,6 +38,8 @@ public class Server extends Thread {
     }
 
 
+    public void removeDaemon(ServerDaemon serverDaemon) {
+        daemonList.remove(serverDaemon);
 
-
+    }
 }
