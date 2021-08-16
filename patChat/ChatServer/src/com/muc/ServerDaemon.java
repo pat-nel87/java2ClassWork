@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.List;
 
 public class ServerDaemon extends Thread {
@@ -12,7 +13,7 @@ public class ServerDaemon extends Thread {
     private final Server server;
     private String login = null;
     private OutputStream outputStream;
-
+    private HashSet<String> topicSet = new HashSet<>();
 
     public ServerDaemon(Socket clientSocket, Server server) {
         this.clientSocket = clientSocket;
@@ -29,7 +30,6 @@ public class ServerDaemon extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private void handleClientSocket() throws IOException, InterruptedException {
@@ -40,6 +40,7 @@ public class ServerDaemon extends Thread {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
+
         while ( (line = reader.readLine()) != null) {
             String[] tokens = StringUtils.split(line);
             if (tokens != null && tokens.length > 0) {
@@ -50,26 +51,49 @@ public class ServerDaemon extends Thread {
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
                 } else if ("msg".equalsIgnoreCase(cmd)) {
-                    String[] tokensMsg = StringUtils.split(line,null,3);
+                    String[] tokensMsg = StringUtils.split(line, null, 3);
                     sendMessage(tokensMsg);
+                } else if ("join".equalsIgnoreCase(cmd)) {
+                    handleJoin(tokens);
             } else {
                 String msg = "unknown " + cmd + "\n";
                 outputStream.write(msg.getBytes());
                 }
             }
         }
+
         clientSocket.close();
+    }
+
+    public boolean isMemberOfTopic(String topic) {
+        return topicSet.contains(topic);
+    }
+
+
+    private void handleJoin(String[] tokens) {
+        if (tokens.length > 1) {
+            String topic = tokens[1];
+            topicSet.add(topic);
+        }
+
     }
 
     private void sendMessage(String[] tokens) throws IOException {
         String sendUser = tokens[1];
         String msgBody = tokens[2];
 
+        boolean isTopic = sendUser.charAt(0) == '#';
+
         List<ServerDaemon> daemonList = server.getDaemonList();
         for(ServerDaemon daemon : daemonList) {
             if (sendUser.equalsIgnoreCase(daemon.getLogin())) {
+                if (isTopic) {
+                    String outMsg = "msg " + login + " " + msgBody + "\n";
+                    daemon.send(outMsg);
+                } else {
                 String outMsg = "msg " + login + " " + msgBody + "\n";
                 daemon.send(outMsg);
+                }
             }
         }
     }
@@ -84,15 +108,12 @@ public class ServerDaemon extends Thread {
             }
         }
             clientSocket.close();
-
     }
 
     public String getLogin() { return login; }
 
 
-
     private void handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
-
 
         if (tokens.length == 3) {
             String login = tokens[1];
@@ -103,6 +124,7 @@ public class ServerDaemon extends Thread {
                 outputStream.write(msg.getBytes());
                 this.login = login;
 
+                System.out.println("\nUser " + login + " has connected\n");
                 String onMsg = "\n User " + login + " is now logged in" + "\n";
                 List<ServerDaemon> daemonList = server.getDaemonList();
 
@@ -114,21 +136,16 @@ public class ServerDaemon extends Thread {
                         }
                     }
                 }
-
                 for(ServerDaemon daemon : daemonList) {
                     if (!login.equals(daemon.getLogin())) {
                         daemon.send(onMsg);
                     }
                 }
-
             } else {
                 String msg = "error login";
                 outputStream.write(msg.getBytes());
-
             }
-
         }
-
     }
 
     private void send(String onMsg) throws IOException {
