@@ -45,7 +45,7 @@ public class ServerDaemon extends Thread {
             String[] tokens = StringUtils.split(line);
             if (tokens != null && tokens.length > 0) {
                 String cmd = tokens[0];
-                if ("logoff".equals(cmd) || "quit".equals(cmd)) {
+                if ("logoff".equals(cmd) || "quit".equalsIgnoreCase(cmd)) {
                     handleLogoff();
                     break;
                 } else if ("login".equalsIgnoreCase(cmd)) {
@@ -136,6 +136,7 @@ public class ServerDaemon extends Thread {
                         }
                     }
                 }
+
                 for(ServerDaemon daemon : daemonList) {
                     if (!login.equals(daemon.getLogin())) {
                         daemon.send(onMsg);
@@ -148,8 +149,12 @@ public class ServerDaemon extends Thread {
         }
     }
 
-    private void send(String onMsg) throws IOException {
-        if (login != null) { outputStream.write(onMsg.getBytes());
+    private void send(String onMsg) {
+        if (login != null) {
+            try {outputStream.write(onMsg.getBytes());
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            }
         }
     }
 
