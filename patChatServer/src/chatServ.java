@@ -42,9 +42,7 @@ public class chatServ {
 
     void groupMsg(String msg, threadForUser dontSend) {
         for (threadForUser user : userThreads) {
-            if (user != dontSend) {
                 user.sendMsg(msg);
-            }
         }
     }
 
