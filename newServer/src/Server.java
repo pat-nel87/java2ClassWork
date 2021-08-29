@@ -108,11 +108,6 @@ public class Server extends JFrame {
 
     }
 
-    //public void receiveMessage(String message) {
-    //    this.serverDialogue.append(message + "\n");
-    //}
-
-
     public static void main(String[] args) {
         Server server = new Server();
 

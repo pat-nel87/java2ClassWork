@@ -18,7 +18,7 @@ public class ClientManager implements Runnable {
     private JTextArea serverMessageDiag;
     private JTextField Response;
 
-    public ClientManager(String userName, Socket socket, OutputStream out, InputStream in /* JFrame serverFrame, JTextArea serverDiag */) {
+    public ClientManager(String userName, Socket socket, OutputStream out, InputStream in ) {
         this.userName = userName;
         this.socket = socket;
         this.dataOutputStream = new DataOutputStream(out);
@@ -41,11 +41,8 @@ public class ClientManager implements Runnable {
         );
         serverMessageFrame.add(serverMessageDiag);
         serverMessageFrame.add(Response, BorderLayout.SOUTH);
-
         serverMessageFrame.setTitle("Message from " + userName);
         serverMessageDiag.append(" \n");
-        //this.serverFrame = serverFrame;
-       // this.serverDiag = serverDiag;
     }
 
     @Override
