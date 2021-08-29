@@ -1,4 +1,7 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -13,12 +16,25 @@ public class Server extends JFrame {
     private int clientNumber;
     private JFrame serverWindow;
     private JTextArea serverDialogue;
+    private JTextField serverEntryField;
 
     public Server()
     {
+        super("Server Window");
         serverWindow = new JFrame();
         serverDialogue = new JTextArea();
+        serverEntryField = new JTextField();
+        serverEntryField.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        writeToUsers(actionEvent.getActionCommand());
+                        serverEntryField.setText("");
+                    }
+                }
+        );
         serverWindow.add(serverDialogue);
+        serverWindow.add(serverEntryField, BorderLayout.SOUTH);
         serverWindow.setSize(500,500);
         serverWindow.setVisible(true);
         serverWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,23 +43,20 @@ public class Server extends JFrame {
 
         try {
             serverSocket = new ServerSocket(8818);
-            //System.out.println("Server is now listening on port 8818");
             serverDialogue.append("Server is now listening on Port 8818 \n");
             while (true) {
                 Socket connection = null;
                 try{
                    connection = serverSocket.accept();
-                   //System.out.println("Client has connected " + connection.getLocalPort());
                    serverDialogue.append("Client has connected " + connection.getLocalSocketAddress() + "\n");
                    Writer out = new OutputStreamWriter(connection.getOutputStream());
                    out.write("\n You are Client #" + clientNumber);
                    out.flush();
                    String userName = "Client" + clientNumber;
+
                    ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
-                   //out.write(clientList.toString());
-                   //out.flush();
                    clientConnection.setUserList(clientList);
                    t.start();
                    out.flush();
@@ -62,6 +75,24 @@ public class Server extends JFrame {
                 e.printStackTrace();
             }
         }
+    }
+    /* iterates through clientlist to
+     send message to every client on list.
+      - will need a if clients.loggedon = true
+      to make sure it doesn't send messages to clients who left the chat
+     */
+
+    private void writeToUsers(String actionCommand) {
+        for (ClientManager clients : clientList) {
+            Writer writer = new OutputStreamWriter(clients.dataOutputStream);
+            try {
+                writer.write("\n" + actionCommand + "\n");
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public static void main(String[] args) {

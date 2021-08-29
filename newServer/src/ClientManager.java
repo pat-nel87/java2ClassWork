@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class ClientManager implements Runnable {
 
     private String userName;
-    final InputStream objectInputStream;
-    final OutputStream objectOutputStream;
+    final DataInputStream dataInputStream;
+    final DataOutputStream dataOutputStream;
     Socket socket;
     boolean loggedOn;
     private ArrayList<ClientManager> userList;
@@ -14,14 +14,25 @@ public class ClientManager implements Runnable {
     public ClientManager(String userName, Socket socket, OutputStream out, InputStream in) {
         this.userName = userName;
         this.socket = socket;
-        this.objectOutputStream = out;
-        this.objectInputStream = in;
+        this.dataOutputStream = new DataOutputStream(out);
+        this.dataInputStream = new DataInputStream(in);
         this.loggedOn = true;
     }
 
     @Override
     public void run() {
         getUserList();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
+        while(true) {
+            try {
+                if(reader.ready()) {
+                   System.out.println(reader.readLine());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 
     }
 
@@ -35,7 +46,7 @@ public class ClientManager implements Runnable {
     }
 
     public void writeToOutputStream(String message) {
-        Writer writer = new OutputStreamWriter(this.objectOutputStream);
+        Writer writer = new OutputStreamWriter(this.dataOutputStream);
         try {
             writer.write("\n" + message + "\n");
             writer.flush();
