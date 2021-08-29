@@ -54,18 +54,20 @@ public class Server extends JFrame {
                    out.flush();
                    String userName = "Client" + clientNumber;
 
-                   ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
+                   ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream() /* serverWindow, serverDialogue */);
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
                    clientConnection.setUserList(clientList);
                    t.start();
                    out.flush();
                    clientNumber++;
+
+
                 } catch(IOException ex) {
                     ex.printStackTrace();
                 }
-
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -73,6 +75,17 @@ public class Server extends JFrame {
                 serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+
+
+    }
+    public void checkForMessages() throws IOException {
+        for (ClientManager clients : clientList) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(clients.dataInputStream));
+            if (reader.ready()) {
+                serverDialogue.append(reader.readLine());
             }
         }
     }
@@ -94,6 +107,11 @@ public class Server extends JFrame {
         }
 
     }
+
+    //public void receiveMessage(String message) {
+    //    this.serverDialogue.append(message + "\n");
+    //}
+
 
     public static void main(String[] args) {
         Server server = new Server();

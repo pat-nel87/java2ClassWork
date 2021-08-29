@@ -1,3 +1,7 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -10,13 +14,38 @@ public class ClientManager implements Runnable {
     Socket socket;
     boolean loggedOn;
     private ArrayList<ClientManager> userList;
+    private JFrame serverMessageFrame;
+    private JTextArea serverMessageDiag;
+    private JTextField Response;
 
-    public ClientManager(String userName, Socket socket, OutputStream out, InputStream in) {
+    public ClientManager(String userName, Socket socket, OutputStream out, InputStream in /* JFrame serverFrame, JTextArea serverDiag */) {
         this.userName = userName;
         this.socket = socket;
         this.dataOutputStream = new DataOutputStream(out);
         this.dataInputStream = new DataInputStream(in);
         this.loggedOn = true;
+        this.serverMessageFrame = new JFrame();
+        serverMessageFrame.setSize(200, 200);
+        serverMessageFrame.setVisible(false);
+        this.serverMessageDiag = new JTextArea();
+        this.Response = new JTextField();
+        Response.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        writeToOutputStream(actionEvent.getActionCommand());
+                        serverMessageDiag.append("Server: " + actionEvent.getActionCommand());
+                        Response.setText("");
+                    }
+                }
+        );
+        serverMessageFrame.add(serverMessageDiag);
+        serverMessageFrame.add(Response, BorderLayout.SOUTH);
+
+        serverMessageFrame.setTitle("Message from " + userName);
+        serverMessageDiag.append(" \n");
+        //this.serverFrame = serverFrame;
+       // this.serverDiag = serverDiag;
     }
 
     @Override
@@ -26,7 +55,11 @@ public class ClientManager implements Runnable {
         while(true) {
             try {
                 if(reader.ready()) {
-                   System.out.println(reader.readLine());
+                    serverMessageFrame.setVisible(true);
+                   // serverMessageDiag.append("\n");
+                  // System.out.println(reader.readLine());
+                   serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -55,5 +88,6 @@ public class ClientManager implements Runnable {
         }
 
     }
+
 
 }
