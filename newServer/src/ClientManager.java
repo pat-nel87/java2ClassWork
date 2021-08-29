@@ -11,7 +11,6 @@ public class ClientManager implements Runnable {
     boolean loggedOn;
     private ArrayList<ClientManager> userList;
 
-
     public ClientManager(String userName, Socket socket, OutputStream out, InputStream in) {
         this.userName = userName;
         this.socket = socket;
@@ -45,7 +44,5 @@ public class ClientManager implements Runnable {
         }
 
     }
-
-
 
 }
