@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 public class Client extends JFrame {
 
@@ -45,6 +44,11 @@ public class Client extends JFrame {
 
             clientTextArea.append("You're now connected \n");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String test1 = "test1";
+            String test2 = "test2";
+            String test3 = "test3";
+            sendMessage(test1, test2, test3, 1);
+
             while(true) {
                 if (reader.ready()) {
                     clientTextArea.append(reader.readLine() + "\n");
@@ -54,8 +58,6 @@ public class Client extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void messageAll(String actionCommand) {
@@ -69,10 +71,22 @@ public class Client extends JFrame {
         }
     }
 
+    private void sendMessage(String userName, String message, String sendTo, int packetHeader) throws IOException {
+        /* Sends Message to Server to be re routed to proper client.
+         PacketHeader sends integers 1 or 2
+         1 means message is for server
+         2 means message is for another client
+         Server will handle request accordingly
+        */
+        ObjectOutputStream objOut = new ObjectOutputStream(clientSocket.getOutputStream());
+        MessagePacket newMessage = new MessagePacket(message, userName, sendTo, packetHeader);
+        objOut.writeObject(newMessage);
+        objOut.flush();
+    }
+
     public static void main(String[] args) {
        Client newClient = new Client();
 
     }
-
 
 }

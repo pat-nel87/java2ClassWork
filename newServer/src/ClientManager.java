@@ -49,22 +49,50 @@ public class ClientManager implements Runnable {
     public void run() {
         getUserList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
+
         while(true) {
+            //Checks for strings from client to display as messages.
             try {
-                if(reader.ready()) {
-                    serverMessageFrame.setVisible(true);
-                   // serverMessageDiag.append("\n");
-                  // System.out.println(reader.readLine());
-                   serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
+               /*
+               Deprecated method for checking for messages,
+               serializing the messagePackets works better
+               thus far.
+               //if(reader.ready()) {
+                //    serverMessageFrame.setVisible(true);
+                //    serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
+                //} //else {
+                */
+                        ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
+                        MessagePacket newMessage = (MessagePacket) objIn.readObject();
 
-                }
-            } catch (IOException e) {
+                        handleMessagePacket(newMessage);
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                continue;
             }
-
         }
-
     }
+
+    public void handleMessagePacket(MessagePacket messageIn) {
+        /*
+        routes the messages to the reciever via
+        the packetHeader integer
+        case 1, send message directly to server
+        case 2, sends message through server from client to another.
+        */
+        switch (messageIn.getPacketHeader()) {
+            case 1: {
+                //System.out.println("Message is for Server");
+                serverMessageFrame.setVisible(true);
+                serverMessageDiag.append(messageIn.getSender() + ": " + messageIn.getMessage() + "\n");
+                break;
+            }
+            case 2: {
+                break;
+            }
+        }
+    }
+
 
     public void setUserList(ArrayList<ClientManager> users) { this.userList = users; }
     public void getUserList() {
@@ -83,8 +111,5 @@ public class ClientManager implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
-
 }

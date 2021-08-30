@@ -6,8 +6,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-
-
 // Server class
 public class Server extends JFrame {
 
@@ -46,7 +44,7 @@ public class Server extends JFrame {
             serverDialogue.append("Server is now listening on Port 8818 \n");
             while (true) {
                 Socket connection = null;
-                try{
+                try {
                    connection = serverSocket.accept();
                    serverDialogue.append("Client has connected " + connection.getLocalSocketAddress() + "\n");
                    Writer out = new OutputStreamWriter(connection.getOutputStream());
@@ -54,7 +52,7 @@ public class Server extends JFrame {
                    out.flush();
                    String userName = "Client" + clientNumber;
 
-                   ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream() /* serverWindow, serverDialogue */);
+                   ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
                    clientConnection.setUserList(clientList);
@@ -62,12 +60,10 @@ public class Server extends JFrame {
                    out.flush();
                    clientNumber++;
 
-
                 } catch(IOException ex) {
                     ex.printStackTrace();
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -77,10 +73,8 @@ public class Server extends JFrame {
                 e.printStackTrace();
             }
         }
-
-
-
     }
+
     public void checkForMessages() throws IOException {
         for (ClientManager clients : clientList) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(clients.dataInputStream));
@@ -89,13 +83,13 @@ public class Server extends JFrame {
             }
         }
     }
-    /* iterates through clientlist to
+
+    private void writeToUsers(String actionCommand) {
+        /* iterates through clientlist to
      send message to every client on list.
       - will need a if clients.loggedon = true
       to make sure it doesn't send messages to clients who left the chat
      */
-
-    private void writeToUsers(String actionCommand) {
         for (ClientManager clients : clientList) {
             Writer writer = new OutputStreamWriter(clients.dataOutputStream);
             try {
@@ -105,7 +99,6 @@ public class Server extends JFrame {
                 e.printStackTrace();
             }
         }
-
     }
 
     public static void main(String[] args) {
