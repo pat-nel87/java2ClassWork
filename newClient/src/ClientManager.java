@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class ClientManager implements Runnable {
 
-    final String userName;
+    private String userName;
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     Socket socket;
@@ -71,17 +71,17 @@ public class ClientManager implements Runnable {
                 //    serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
                 //} //else {
                 */
-               ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
-               Object newObj = objIn.readObject();
-               if (newObj instanceof MessagePacket) {
-                 //  MessagePacket newMessage = (MessagePacket) objIn.readObject();
+                ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
+                Object newObj = objIn.readObject();
+                if (newObj instanceof MessagePacket) {
+                    //  MessagePacket newMessage = (MessagePacket) objIn.readObject();
                     MessagePacket newMessage = (MessagePacket) newObj;
                     handleMessagePacket(newMessage);
-               }
-               if (newObj instanceof UserSessionManager) {
-                   setUserList((UserSessionManager) newObj);
+                }
+                if (newObj instanceof UserSessionManager) {
+                    setUserList((UserSessionManager) newObj);
 
-               }
+                }
             } catch (EOFException e) {
                 e.printStackTrace();
                 break;
@@ -140,11 +140,11 @@ public class ClientManager implements Runnable {
 
     public void setUserList(UserSessionManager usersOnline ) { this.usersOnline = usersOnline; }
     public void getUserList() {
-      //  writeToOutputStream("\n Current Users Online: ");
+        //  writeToOutputStream("\n Current Users Online: ");
 
-    //    for (ClientManager clients : userList) {
-    //    writeToOutputStream(clients.userName);
-    //    }
+        //    for (ClientManager clients : userList) {
+        //    writeToOutputStream(clients.userName);
+        //    }
     }
 
     public void writeToOutputStream(String message) {

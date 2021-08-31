@@ -83,9 +83,14 @@ public class Client extends JFrame {
                 } */
                 try {
                     ObjectInputStream objIn = new ObjectInputStream(clientSocket.getInputStream());
-                    MessagePacket newMessage = (MessagePacket) objIn.readObject();
-                    handleMessagePacket(newMessage);
-
+                    Object newObj = objIn.readObject();
+                    if (newObj instanceof MessagePacket) {
+                        MessagePacket newMessage = (MessagePacket) newObj;
+                        handleMessagePacket(newMessage);
+                    }
+                    if (newObj instanceof UserSessionManager) {
+                        System.out.println("User list received");
+                    }
                 } catch (EOFException ex) {
                     ex.printStackTrace();
                     break;

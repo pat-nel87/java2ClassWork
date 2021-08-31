@@ -15,6 +15,7 @@ public class Server extends JFrame {
     private JFrame serverWindow;
     private JTextArea serverDialogue;
     private JTextField serverEntryField;
+    private UserSessionManager usersOnline;
 
     public Server()
     {
@@ -42,6 +43,7 @@ public class Server extends JFrame {
         try {
             serverSocket = new ServerSocket(8818);
             serverDialogue.append("Server is now listening on Port 8818 \n");
+            usersOnline = new UserSessionManager(new ArrayList<>());
             while (true) {
                 Socket connection = null;
                 try {
@@ -56,11 +58,13 @@ public class Server extends JFrame {
                    ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
-                   clientConnection.setUserList(clientList);
+                   //clientConnection.setUserList(clientList);
+                  // usersOnline.setUsersList(clientList);
+                   clientConnection.setUserList(usersOnline);
                    t.start();
                    //out.flush();
                    clientNumber++;
-
+                   updateClientLists();
                 } catch(IOException ex) {
                     ex.printStackTrace();
                 }
@@ -84,6 +88,23 @@ public class Server extends JFrame {
         objOut.flush();
 
     }
+    public void updateClientLists() throws IOException {
+        ArrayList temp = new ArrayList();
+        for (ClientManager clients : clientList) {
+            temp.add(clients.userName);
+        }
+        usersOnline.setUsersList(temp);
+        sendClientLists();
+    }
+
+    private void sendClientLists() throws IOException {
+        for (ClientManager clients : clientList) {
+            ObjectOutputStream objOut = new ObjectOutputStream(clients.socket.getOutputStream());
+            objOut.writeObject(usersOnline);
+            objOut.flush();
+        }
+    }
+
     /*
     Deprecated method
     public void checkForMessages() throws IOException {
