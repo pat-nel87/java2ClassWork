@@ -47,17 +47,18 @@ public class Server extends JFrame {
                 try {
                    connection = serverSocket.accept();
                    serverDialogue.append("Client has connected " + connection.getLocalSocketAddress() + "\n");
-                   Writer out = new OutputStreamWriter(connection.getOutputStream());
-                   out.write("\n You are Client #" + clientNumber);
-                   out.flush();
+                   //Writer out = new OutputStreamWriter(connection.getOutputStream());
+                   //out.write("\n You are Client #" + clientNumber);
+                   //out.flush();
                    String userName = "Client" + clientNumber;
-
+                   String message = ("\n You are Client #" + clientNumber);
+                   sendMessagePacket(message, "Server", userName, 1, connection);
                    ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
                    clientConnection.setUserList(clientList);
                    t.start();
-                   out.flush();
+                   //out.flush();
                    clientNumber++;
 
                 } catch(IOException ex) {
@@ -75,6 +76,16 @@ public class Server extends JFrame {
         }
     }
 
+    public void sendMessagePacket(String message, String userName, String sendTo, int packetHeader, Socket socket) throws IOException {
+        /* creates and sends a messagePacket to desired location  */
+        MessagePacket newMessage = new MessagePacket(message, userName, sendTo, packetHeader);
+        ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
+        objOut.writeObject(newMessage);
+        objOut.flush();
+
+    }
+    /*
+    Deprecated method
     public void checkForMessages() throws IOException {
         for (ClientManager clients : clientList) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(clients.dataInputStream));
@@ -83,7 +94,7 @@ public class Server extends JFrame {
             }
         }
     }
-
+    */
     private void writeToUsers(String actionCommand) {
         /* iterates through clientlist to
      send message to every client on list.

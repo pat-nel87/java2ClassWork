@@ -33,9 +33,18 @@ public class ClientManager implements Runnable {
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent actionEvent) {
-                        writeToOutputStream(actionEvent.getActionCommand());
-                        serverMessageDiag.append("Server: " + actionEvent.getActionCommand());
+                        String message =actionEvent.getActionCommand();
+                        serverMessageDiag.append("Server: " + message + "\n");
+                        try {
+                            sendMessagePacket(message, "Server", userName, 1, socket);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         Response.setText("");
+
+                        // writeToOutputStream(actionEvent.getActionCommand());
+                        /*serverMessageDiag.append("Server: " + actionEvent.getActionCommand());
+                        Response.setText(""); */
                     }
                 }
         );
@@ -47,8 +56,8 @@ public class ClientManager implements Runnable {
 
     @Override
     public void run() {
-        getUserList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
+        //getUserList();
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
 
         while(true) {
             //Checks for strings from client to display as messages.
@@ -62,10 +71,12 @@ public class ClientManager implements Runnable {
                 //    serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
                 //} //else {
                 */
-                        ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
-                        MessagePacket newMessage = (MessagePacket) objIn.readObject();
-
-                        handleMessagePacket(newMessage);
+               ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
+               MessagePacket newMessage = (MessagePacket) objIn.readObject();
+               handleMessagePacket(newMessage);
+            } catch (EOFException e) {
+                e.printStackTrace();
+                break;
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 continue;
@@ -85,12 +96,37 @@ public class ClientManager implements Runnable {
                 //System.out.println("Message is for Server");
                 serverMessageFrame.setVisible(true);
                 serverMessageDiag.append(messageIn.getSender() + ": " + messageIn.getMessage() + "\n");
+                /* Response.addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent actionEvent) {
+                                // writeToOutputStream(actionEvent.getActionCommand());
+                                String message =actionEvent.getActionCommand();
+                                serverMessageDiag.append("Server: " + message );
+                                try {
+                                    sendMessagePacket(message, "Server", userName, 1, socket);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Response.setText("");
+                            }
+                        }
+                ); */
                 break;
             }
             case 2: {
                 break;
             }
         }
+    }
+
+    public void sendMessagePacket(String message, String userName, String sendTo, int packetHeader, Socket socket) throws IOException {
+        /* creates and sends a messagePacket to desired location  */
+        MessagePacket newMessage = new MessagePacket(message, userName, sendTo, packetHeader);
+        ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
+        objOut.writeObject(newMessage);
+        objOut.flush();
+
     }
 
 
