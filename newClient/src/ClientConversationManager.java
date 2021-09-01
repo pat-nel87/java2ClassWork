@@ -16,6 +16,8 @@ public class ClientConversationManager implements Runnable {
     private MessagePacket currentMessage;
     private final String otherClient;
     private final String myUsername;
+    private boolean activeConversation;
+
 
     public void addMessage(String msg, String user) {
         String newMessage = (user + ": " + msg + "\n");
@@ -30,6 +32,7 @@ public class ClientConversationManager implements Runnable {
         this.myUsername = myUsername;
         this.otherClient = otherClient;
         this.socket = socket;
+        this.activeConversation = true;
 
         this.conversationWindow = new JFrame();
         this.conversationDialogue = new JTextArea();
@@ -57,6 +60,46 @@ public class ClientConversationManager implements Runnable {
 
     }
 
+    ClientConversationManager(String myUsername, String otherClient, Socket socket, MessagePacket currentMessage) {
+
+        this.myUsername = myUsername;
+        this.otherClient = otherClient;
+        this.socket = socket;
+        this.activeConversation = true;
+        this.currentMessage = currentMessage;
+
+        this.conversationWindow = new JFrame();
+        this.conversationDialogue = new JTextArea();
+        this.conversationEntry = new JTextField();
+        conversationEntry.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        String temp = actionEvent.getActionCommand();
+                        try {
+                            conversationDialogue.append(myUsername + ": " + temp + "\n");
+                            sendMessage(myUsername, temp, otherClient, 2);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        conversationEntry.setText("");
+                    }
+                }
+        );
+        conversationWindow.add(conversationDialogue);
+        conversationWindow.add(conversationEntry, BorderLayout.SOUTH);
+        conversationWindow.setTitle("Chatting with " + otherClient);
+        conversationWindow.setSize(200, 200);
+        conversationWindow.setVisible(true);
+
+        addMessage(currentMessage.getMessage(), currentMessage.getSender());
+
+
+    }
+
+    public void setActiveConversation(boolean tf) { this.activeConversation = tf; }
+    public boolean getActiveConversation() { return this.activeConversation; }
+
 
     @Override
     public void run() {
@@ -74,6 +117,7 @@ public class ClientConversationManager implements Runnable {
         */
             ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
             MessagePacket newMessage = new MessagePacket(message, userName, sendTo, packetHeader);
+            newMessage.setActiveMessage(true);
             objOut.writeObject(newMessage);
             objOut.flush();
         }

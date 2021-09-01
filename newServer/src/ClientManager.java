@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class ClientManager implements Runnable {

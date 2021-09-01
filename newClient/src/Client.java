@@ -134,13 +134,22 @@ public class Client extends JFrame {
         }
     }
 
-    private void startConversation(String temp) {
-        ClientConversationManager newConversation = new ClientConversationManager(myUserName ,temp, clientSocket);
+    private void startConversation(String otherClient) {
+        ClientConversationManager newConversation = new ClientConversationManager(myUserName ,otherClient, clientSocket);
         conversations.add(newConversation);
         Thread t = new Thread(newConversation);
         t.start();
 
     }
+
+    private void incomingConversation(String otherClient, MessagePacket messageIn) {
+        ClientConversationManager newConversation = new ClientConversationManager(myUserName ,otherClient, clientSocket, messageIn);
+        conversations.add(newConversation);
+        Thread t = new Thread(newConversation);
+        t.start();
+
+    }
+
 
     private void updateClientList() {
         ArrayList temp = myUserSession.getUsersList();
@@ -202,11 +211,25 @@ public class Client extends JFrame {
     }
 
     public void handleConversation(MessagePacket newMessage) {
-        for (ClientConversationManager convos : conversations) {
-            if(convos.getOtherClient().equals(newMessage.getSender())) {
-                convos.addMessage(newMessage.getMessage(), newMessage.getSender());
+        System.out.println("Inside handleConversation");
+        System.out.println(conversations.size());
+        if (conversations.size() > 0) {
+            for (ClientConversationManager convos : conversations) {
+                System.out.println(convos.getActiveConversation());
+                if (convos.getOtherClient().equals(newMessage.getSender())) {
+                    if (convos.getActiveConversation()) {
+                        System.out.println("First Condition");
+                        System.out.println(newMessage.getActiveMessage());
+                        convos.addMessage(newMessage.getMessage(), newMessage.getSender());
+                    }
+                }
+
             }
+        } else {
+            System.out.println("2nd Condition");
+            incomingConversation(newMessage.getSender(), newMessage);
         }
+
     }
 
 
