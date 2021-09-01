@@ -2,8 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Client extends JFrame {
 
@@ -11,6 +14,9 @@ public class Client extends JFrame {
     private BufferedOutputStream outputStream;
     private BufferedInputStream inputStream;
     private JFrame clientWindow;
+    private JPanel clientPanel;
+    private JList clientList;
+    private DefaultListModel<String> clientListModel;
     private JTextArea clientTextArea;
     private JTextField clientTextEntry;
     private Socket clientSocket;
@@ -18,6 +24,9 @@ public class Client extends JFrame {
     private JTextArea newMessageDiag;
     private JTextField newMessageEntry;
     private String myUserName;
+    private UserSessionManager myUserSession;
+    private ArrayList<ClientConversationManager> conversations;
+
 
     public Client() {
 
@@ -33,8 +42,24 @@ public class Client extends JFrame {
                     }
                 }
         );
-        this.clientWindow.add(clientTextEntry, BorderLayout.SOUTH);
-        this.clientWindow.add(clientTextArea);
+        this.clientPanel = new JPanel();
+        this.clientListModel = new DefaultListModel<>();
+        this.clientList = new JList<>(clientListModel);
+        this.conversations = new ArrayList<>();
+        clientList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() > 1) {
+                    String temp = (String) clientList.getSelectedValue();
+                    //System.out.println(clientList.getSelectedValue());
+                    startConversation(temp);
+                }
+            }
+        });
+        this.clientPanel.add(clientTextArea, BorderLayout.SOUTH);
+        this.clientPanel.add(new JScrollPane(clientList), BorderLayout.CENTER);
+        //this.clientWindow.add(clientTextEntry, BorderLayout.SOUTH);
+        this.clientWindow.add(clientPanel);
         this.clientWindow.setSize(500,500);
         this.clientWindow.setVisible(true);
         this.clientWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,6 +115,8 @@ public class Client extends JFrame {
                     }
                     if (newObj instanceof UserSessionManager) {
                         System.out.println("User list received");
+                        setMyUserSession((UserSessionManager) newObj);
+                        updateClientList();
                     }
                 } catch (EOFException ex) {
                     ex.printStackTrace();
@@ -105,6 +132,24 @@ public class Client extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void startConversation(String temp) {
+        ClientConversationManager newConversation = new ClientConversationManager(myUserName ,temp, clientSocket);
+        conversations.add(newConversation);
+        Thread t = new Thread(newConversation);
+        t.start();
+
+    }
+
+    private void updateClientList() {
+        ArrayList temp = myUserSession.getUsersList();
+        for (int i = 0; i < temp.size(); i++) {
+            clientListModel.addElement((String) temp.get(i));
+            System.out.println((String)temp.get(i));
+        }
+
+
     }
 
     private void messageAll(String actionCommand) {
@@ -146,17 +191,30 @@ public class Client extends JFrame {
                 //System.out.println("Message is for Server");
                 newMessageFrame.setVisible(true);
                 newMessageDiag.append(messageIn.getSender() + ": " + messageIn.getMessage() + "\n");
-
+                break;
             }
             case 2: {
+                System.out.println("We also caught the bacon \n");
+                handleConversation(messageIn);
                 break;
             }
         }
     }
 
+    public void handleConversation(MessagePacket newMessage) {
+        for (ClientConversationManager convos : conversations) {
+            if(convos.getOtherClient().equals(newMessage.getSender())) {
+                convos.addMessage(newMessage.getMessage(), newMessage.getSender());
+            }
+        }
+    }
+
+
     public void setMyUserName(String name) { this.myUserName = name; }
     public String getMyUserName() { return this.myUserName; }
 
+    private void setMyUserSession(UserSessionManager userSession) { this.myUserSession = userSession; }
+    public UserSessionManager getMyUserSession() { return this.myUserSession; }
 
     public static void main(String[] args) {
        Client newClient = new Client();

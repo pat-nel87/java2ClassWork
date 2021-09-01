@@ -3,13 +3,14 @@ import java.util.ArrayList;
 
 public class UserSessionManager implements Serializable {
 
-    private ArrayList<ClientManager> usersList;
+    private ArrayList<String> usersList;
 
-    UserSessionManager(ArrayList<ClientManager> usersList) {
+
+    UserSessionManager(ArrayList<String> usersList) {
         setUsersList(usersList);
     }
 
-    public void setUsersList(ArrayList<ClientManager> usersList) { this.usersList = usersList; }
+    public void setUsersList(ArrayList<String> usersList) { this.usersList = usersList; }
     public ArrayList getUsersList() { return this.usersList; }
 
 }

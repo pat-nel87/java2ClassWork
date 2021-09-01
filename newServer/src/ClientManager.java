@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class ClientManager implements Runnable {
@@ -17,6 +18,7 @@ public class ClientManager implements Runnable {
     private JFrame serverMessageFrame;
     private JTextArea serverMessageDiag;
     private JTextField Response;
+    private ArrayList<ClientManager> clientsList;
 
     public ClientManager(String userName, Socket socket, OutputStream out, InputStream in ) {
         this.userName = userName;
@@ -56,11 +58,7 @@ public class ClientManager implements Runnable {
 
     @Override
     public void run() {
-        //getUserList();
-        //BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
-
         while(true) {
-
             try {
                /*
                Deprecated method for checking for messages,
@@ -92,7 +90,7 @@ public class ClientManager implements Runnable {
         }
     }
 
-    public void handleMessagePacket(MessagePacket messageIn) {
+    public void handleMessagePacket(MessagePacket messageIn) throws IOException {
         /*
         routes the messages to the reciever via
         the packetHeader integer
@@ -123,9 +121,32 @@ public class ClientManager implements Runnable {
                 break;
             }
             case 2: {
+                System.out.println("Bacon trapped and ready for crisping");
+                System.out.println("\n " + messageIn.getMessage());
+                clientToClient(messageIn);
+
                 break;
             }
         }
+    }
+
+    private void clientToClient(MessagePacket messageIn) throws IOException {
+        System.out.println(messageIn.getSendTo());
+        String sendTo = messageIn.getSendTo();
+        System.out.println(sendTo + "\n");
+
+        String message = messageIn.getMessage();
+        String sender = messageIn.getSender();
+        for (ClientManager clients : clientsList ) {
+            System.out.println(clients.userName + "\n");
+            String clientCheck = (String) clients.userName;
+            if (clientCheck.equals(sendTo))
+                {
+                 //   System.out.println("If statement hits");
+                    sendMessagePacket(messageIn.getMessage(), messageIn.getSender(), sendTo, 2, clients.socket);
+                }
+        }
+
     }
 
     public void sendMessagePacket(String message, String userName, String sendTo, int packetHeader, Socket socket) throws IOException {
@@ -145,6 +166,10 @@ public class ClientManager implements Runnable {
     //    for (ClientManager clients : userList) {
     //    writeToOutputStream(clients.userName);
     //    }
+    }
+
+    public void setClientsList(ArrayList clientsList) {
+        this.clientsList = clientsList;
     }
 
     public void writeToOutputStream(String message) {

@@ -49,6 +49,7 @@ public class Server extends JFrame {
                 try {
                    connection = serverSocket.accept();
                    serverDialogue.append("Client has connected " + connection.getLocalSocketAddress() + "\n");
+                   serverDialogue.append("Client remote socket address :" + connection.getRemoteSocketAddress() + "\n");
                    //Writer out = new OutputStreamWriter(connection.getOutputStream());
                    //out.write("\n You are Client #" + clientNumber);
                    //out.flush();
@@ -65,6 +66,7 @@ public class Server extends JFrame {
                    //out.flush();
                    clientNumber++;
                    updateClientLists();
+                   connection.getOutputStream().flush();
                 } catch(IOException ex) {
                     ex.printStackTrace();
                 }
@@ -99,6 +101,7 @@ public class Server extends JFrame {
 
     private void sendClientLists() throws IOException {
         for (ClientManager clients : clientList) {
+            clients.setClientsList(clientList);
             ObjectOutputStream objOut = new ObjectOutputStream(clients.socket.getOutputStream());
             objOut.writeObject(usersOnline);
             objOut.flush();
