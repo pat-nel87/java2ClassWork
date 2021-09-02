@@ -50,20 +50,16 @@ public class Server extends JFrame {
                    connection = serverSocket.accept();
                    serverDialogue.append("Client has connected " + connection.getLocalSocketAddress() + "\n");
                    serverDialogue.append("Client remote socket address :" + connection.getRemoteSocketAddress() + "\n");
-                   //Writer out = new OutputStreamWriter(connection.getOutputStream());
-                   //out.write("\n You are Client #" + clientNumber);
-                   //out.flush();
                    String userName = "Client" + clientNumber;
                    String message = ("\n You are Client #" + clientNumber);
                    sendMessagePacket(message, "Server", userName, 1, connection);
                    ClientManager clientConnection = new ClientManager(userName, connection, connection.getOutputStream(), connection.getInputStream());
                    Thread t = new Thread(clientConnection);
                    clientList.add(clientConnection);
-                   //clientConnection.setUserList(clientList);
-                  // usersOnline.setUsersList(clientList);
+
                    clientConnection.setUserList(usersOnline);
                    t.start();
-                   //out.flush();
+
                    clientNumber++;
                    updateClientLists();
                    connection.getOutputStream().flush();
@@ -88,12 +84,24 @@ public class Server extends JFrame {
         ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
         objOut.writeObject(newMessage);
         objOut.flush();
-
     }
+
     public void updateClientLists() throws IOException {
+        /* Method to send updated list of clients online to
+        clients every time a new connection is made
+        using properties of a HashSet to prevent adding new users
+        */
+
         ArrayList temp = new ArrayList();
+        Set<ClientManager> temp2 = new HashSet<>();
         for (ClientManager clients : clientList) {
-            temp.add(clients.userName);
+                if (clients.loggedOn == false){
+                    clientList.remove(clients);
+                }
+
+                if (temp2.add(clients) == true) {
+                    temp.add(clients.userName);
+                }
         }
         usersOnline.setUsersList(temp);
         sendClientLists();
@@ -101,24 +109,19 @@ public class Server extends JFrame {
 
     private void sendClientLists() throws IOException {
         for (ClientManager clients : clientList) {
-            clients.setClientsList(clientList);
-            ObjectOutputStream objOut = new ObjectOutputStream(clients.socket.getOutputStream());
-            objOut.writeObject(usersOnline);
-            objOut.flush();
-        }
-    }
-
-    /*
-    Deprecated method
-    public void checkForMessages() throws IOException {
-        for (ClientManager clients : clientList) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clients.dataInputStream));
-            if (reader.ready()) {
-                serverDialogue.append(reader.readLine());
+            if (clients.loggedOn == true) {
+                clients.setClientsList(clientList);
+                try {
+                    ObjectOutputStream objOut = new ObjectOutputStream(clients.socket.getOutputStream());
+                    objOut.writeObject(usersOnline);
+                    objOut.flush();
+                } catch (SocketException s) {
+                    clientList.remove(clients);
+                }
             }
         }
     }
-    */
+
     private void writeToUsers(String actionCommand) {
         /* iterates through clientlist to
      send message to every client on list.
@@ -140,9 +143,5 @@ public class Server extends JFrame {
         Server server = new Server();
 
     }
-
-
-
-
 
 }

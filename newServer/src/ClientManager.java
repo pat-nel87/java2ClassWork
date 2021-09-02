@@ -43,9 +43,7 @@ public class ClientManager implements Runnable {
                         }
                         Response.setText("");
 
-                        // writeToOutputStream(actionEvent.getActionCommand());
-                        /*serverMessageDiag.append("Server: " + actionEvent.getActionCommand());
-                        Response.setText(""); */
+
                     }
                 }
         );
@@ -57,35 +55,41 @@ public class ClientManager implements Runnable {
 
     @Override
     public void run() {
-        while(true) {
+        while(!Thread.interrupted()) {
             try {
-               /*
-               Deprecated method for checking for messages,
-               serializing the messagePackets works better
-               thus far.
-               //if(reader.ready()) {
-                //    serverMessageFrame.setVisible(true);
-                //    serverMessageDiag.append(userName + ": " + reader.readLine() + "\n");
-                //} //else {
+                /* objIn may encounter a MessagePacket
+                or a UserSessionManager Object containing
+                a list of users, so it checks for either instanceof
                 */
-               ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
-               Object newObj = objIn.readObject();
-               if (newObj instanceof MessagePacket) {
-                 //  MessagePacket newMessage = (MessagePacket) objIn.readObject();
-                    MessagePacket newMessage = (MessagePacket) newObj;
-                    handleMessagePacket(newMessage);
-               }
-               if (newObj instanceof UserSessionManager) {
-                   setUserList((UserSessionManager) newObj);
+               try {
+                   ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
+                   Object newObj = objIn.readObject();
 
-               }
+
+                   if (newObj instanceof MessagePacket) {
+                       MessagePacket newMessage = (MessagePacket) newObj;
+                       handleMessagePacket(newMessage);
+                   }
+                   if (newObj instanceof UserSessionManager) {
+                       setUserList((UserSessionManager) newObj);
+                   }
+               }  catch (EOFException e) {
+                loggedOn = false;
+                socket.close();
+                Thread.currentThread().join();
+            }
             } catch (EOFException e) {
                 e.printStackTrace();
                 break;
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 e.printStackTrace();
                 continue;
             }
+        }
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+            System.out.println("Client closed");
         }
     }
 
@@ -94,36 +98,19 @@ public class ClientManager implements Runnable {
         routes the messages to the reciever via
         the packetHeader integer
         case 1, send message directly to server
-        case 2, sends message through server from client to another.
+        case 2, sends message through server from client to another client.
         */
         switch (messageIn.getPacketHeader()) {
-            case 1: {
-                //System.out.println("Message is for Server");
+            case 1:
+            {
                 serverMessageFrame.setVisible(true);
                 serverMessageDiag.append(messageIn.getSender() + ": " + messageIn.getMessage() + "\n");
-                /* Response.addActionListener(
-                        new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent actionEvent) {
-                                // writeToOutputStream(actionEvent.getActionCommand());
-                                String message =actionEvent.getActionCommand();
-                                serverMessageDiag.append("Server: " + message );
-                                try {
-                                    sendMessagePacket(message, "Server", userName, 1, socket);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                Response.setText("");
-                            }
-                        }
-                ); */
                 break;
             }
-            case 2: {
-                System.out.println("Bacon trapped and ready for crisping");
+            case 2:
+            {
                 System.out.println("\n " + messageIn.getMessage());
                 clientToClient(messageIn);
-
                 break;
             }
         }
@@ -141,11 +128,9 @@ public class ClientManager implements Runnable {
             String clientCheck = (String) clients.userName;
             if (clientCheck.equals(sendTo))
                 {
-                 //   System.out.println("If statement hits");
                     sendMessagePacket(messageIn.getMessage(), messageIn.getSender(), sendTo, 2, clients.socket);
                 }
         }
-
     }
 
     public void sendMessagePacket(String message, String userName, String sendTo, int packetHeader, Socket socket) throws IOException {
@@ -157,27 +142,8 @@ public class ClientManager implements Runnable {
 
     }
 
-
     public void setUserList(UserSessionManager usersOnline ) { this.usersOnline = usersOnline; }
-    public void getUserList() {
-      //  writeToOutputStream("\n Current Users Online: ");
+    public UserSessionManager getUserList() { return this.usersOnline; }
 
-    //    for (ClientManager clients : userList) {
-    //    writeToOutputStream(clients.userName);
-    //    }
-    }
-
-    public void setClientsList(ArrayList clientsList) {
-        this.clientsList = clientsList;
-    }
-
-    public void writeToOutputStream(String message) {
-        Writer writer = new OutputStreamWriter(this.dataOutputStream);
-        try {
-            writer.write("\n" + message + "\n");
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+    public void setClientsList(ArrayList clientsList) { this.clientsList = clientsList; }
+ }

@@ -7,10 +7,13 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Client extends JFrame {
 
     final static int ServerPort = 8818;
+    private String serverName;
     private BufferedOutputStream outputStream;
     private BufferedInputStream inputStream;
     private JFrame clientWindow;
@@ -27,8 +30,7 @@ public class Client extends JFrame {
     private UserSessionManager myUserSession;
     private ArrayList<ClientConversationManager> conversations;
 
-
-    public Client() {
+    public Client() throws IOException {
 
         this.clientWindow = new JFrame();
         this.clientTextArea = new JTextArea();
@@ -49,7 +51,7 @@ public class Client extends JFrame {
         clientList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() > 1) {
+                if (e.getClickCount() > 1) {
                     String temp = (String) clientList.getSelectedValue();
                     //System.out.println(clientList.getSelectedValue());
                     startConversation(temp);
@@ -60,7 +62,7 @@ public class Client extends JFrame {
         this.clientPanel.add(new JScrollPane(clientList), BorderLayout.CENTER);
         //this.clientWindow.add(clientTextEntry, BorderLayout.SOUTH);
         this.clientWindow.add(clientPanel);
-        this.clientWindow.setSize(500,500);
+        this.clientWindow.setSize(500, 500);
         this.clientWindow.setVisible(true);
         this.clientWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -78,7 +80,7 @@ public class Client extends JFrame {
                         newMessageDiag.append(myUserName + ": " + message + "\n");
                         newMessageEntry.setText("");
                         try {
-                            sendMessage(getMyUserName(), message, "Server", 1 );
+                            sendMessage(getMyUserName(), message, "Server", 1);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -88,50 +90,96 @@ public class Client extends JFrame {
         this.newMessageFrame.setSize(200, 200);
         this.newMessageFrame.setVisible(false);
 
-        try {
-            this.clientSocket = new Socket("localhost", ServerPort);
-           // inputStream = new BufferedInputStream((clientSocket.getInputStream()));
-           // outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
-           // DataInputStream in = new DataInputStream(inputStream);
-           // DataOutputStream out = new DataOutputStream(outputStream);
+        this.clientSocket = new Socket("localhost", ServerPort);
 
-            clientTextArea.append("You're now connected \n");
-           // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            String test1 = "test1";
-            String test2 = "test2";
-            String test3 = "test3";
-            sendMessage(test1, test2, test3, 1);
+        clientTextArea.append("You're now connected \n");
+        // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        String test1 = "test1";
+        String test2 = "test2";
+        String test3 = "test3";
+        sendMessage(test1, test2, test3, 1);
 
-            while(true) {
-               /* if (reader.ready()) {
-                    clientTextArea.append(reader.readLine() + "\n");
-                } */
-                try {
-                    ObjectInputStream objIn = new ObjectInputStream(clientSocket.getInputStream());
-                    Object newObj = objIn.readObject();
-                    if (newObj instanceof MessagePacket) {
-                        MessagePacket newMessage = (MessagePacket) newObj;
-                        handleMessagePacket(newMessage);
-                    }
-                    if (newObj instanceof UserSessionManager) {
-                        System.out.println("User list received");
-                        setMyUserSession((UserSessionManager) newObj);
-                        updateClientList();
-                    }
-                } catch (EOFException ex) {
-                    ex.printStackTrace();
-                    break;
-                } catch (StreamCorruptedException s) {
-                    s.printStackTrace();
-                    continue;
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                    continue;
+        while (true) {
+
+            try {
+                ObjectInputStream objIn = new ObjectInputStream(clientSocket.getInputStream());
+                Object newObj = objIn.readObject();
+                if (newObj instanceof MessagePacket) {
+                    MessagePacket newMessage = (MessagePacket) newObj;
+                    handleMessagePacket(newMessage);
                 }
+                if (newObj instanceof UserSessionManager) {
+                    System.out.println("User list received");
+                    setMyUserSession((UserSessionManager) newObj);
+                    updateClientList();
+                }
+            } catch (EOFException ex) {
+                String errorMsg = ("Server Connection Lost!");
+                ErrorMethod(errorMsg);
+                break;
+            } catch (StreamCorruptedException s) {
+                s.printStackTrace();
+                continue;
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        try {
+            this.clientSocket.close();
+        } catch (IOException e) {
+            System.out.println("Client closed");
+        }
+    }
+
+    private String setServerIP() {
+        String servIP;
+        JFrame setServerFrame = new JFrame();
+        setServerFrame.setTitle("Enter Server IP");
+        setServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setServerFrame.setSize(400, 100);
+        setServerFrame.setLocation(500, 500);
+        JTextArea setServerDialogue = new JTextArea();
+        setServerDialogue.append("Enter Server IP Address or localhost and Press Enter to connect");
+        JTextField enterServerIP = new JTextField();
+        enterServerIP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                actionEvent.getActionCommand();
+                setServerFrame.setVisible(false);
+            }
+
+        });
+        setServerFrame.add(setServerDialogue);
+        setServerFrame.add(enterServerIP, BorderLayout.SOUTH);
+        setServerFrame.setVisible(true);
+        while (setServerFrame.isVisible()) {
+
+           }
+        return enterServerIP.getText();
+    }
+
+
+
+    private void ErrorMethod(String errorAlert) {
+        //UI for Error Messages to inform User.
+        JFrame error = new JFrame();
+        error.setTitle(errorAlert);
+        error.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        error.setSize(500, 200);
+        error.setLocationRelativeTo(clientPanel);
+        JTextArea errorMessage = new JTextArea();
+        errorMessage.append(errorAlert);
+        JButton exit = new JButton("Exit");
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.exit(-1);
+            }
+        });
+        error.add(errorMessage);
+        error.add(exit, BorderLayout.SOUTH);
+        error.setVisible(true);
     }
 
     private void startConversation(String otherClient) {
@@ -139,7 +187,6 @@ public class Client extends JFrame {
         conversations.add(newConversation);
         Thread t = new Thread(newConversation);
         t.start();
-
     }
 
     private void incomingConversation(String otherClient, MessagePacket messageIn) {
@@ -147,19 +194,17 @@ public class Client extends JFrame {
         conversations.add(newConversation);
         Thread t = new Thread(newConversation);
         t.start();
-
     }
-
 
     private void updateClientList() {
         ArrayList temp = myUserSession.getUsersList();
+        Set<String> temp2 = new HashSet<>();
         for (int i = 0; i < temp.size(); i++) {
-            clientListModel.addElement((String) temp.get(i));
-            System.out.println((String)temp.get(i));
+
+                clientListModel.addElement((String) temp.get(i));
+                System.out.println((String) temp.get(i));
+            }
         }
-
-
-    }
 
     private void messageAll(String actionCommand) {
         DataOutputStream out = new DataOutputStream(outputStream);
@@ -184,6 +229,7 @@ public class Client extends JFrame {
         objOut.writeObject(newMessage);
         objOut.flush();
     }
+
     public void handleMessagePacket(MessagePacket messageIn) {
         /*
         routes the messages to the reciever via
@@ -197,13 +243,11 @@ public class Client extends JFrame {
                     messageIn.setActiveMessage(true);
                     setMyUserName(messageIn.getSendTo());
                 }
-                //System.out.println("Message is for Server");
                 newMessageFrame.setVisible(true);
                 newMessageDiag.append(messageIn.getSender() + ": " + messageIn.getMessage() + "\n");
                 break;
             }
             case 2: {
-                System.out.println("We also caught the bacon \n");
                 handleConversation(messageIn);
                 break;
             }
@@ -232,16 +276,14 @@ public class Client extends JFrame {
 
     }
 
-
     public void setMyUserName(String name) { this.myUserName = name; }
     public String getMyUserName() { return this.myUserName; }
 
     private void setMyUserSession(UserSessionManager userSession) { this.myUserSession = userSession; }
     public UserSessionManager getMyUserSession() { return this.myUserSession; }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
        Client newClient = new Client();
 
     }
-
 }
