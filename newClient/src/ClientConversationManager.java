@@ -100,11 +100,8 @@ public class ClientConversationManager implements Runnable {
     public void setActiveConversation(boolean tf) { this.activeConversation = tf; }
     public boolean getActiveConversation() { return this.activeConversation; }
 
-
     @Override
     public void run() {
-
-
 
     }
 
@@ -142,7 +139,5 @@ public class ClientConversationManager implements Runnable {
                     break;
                 }
             }
-
         }
-
     }

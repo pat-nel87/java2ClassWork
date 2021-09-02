@@ -13,7 +13,7 @@ import java.util.Set;
 public class Client extends JFrame {
 
     final static int ServerPort = 8818;
-    private String serverName;
+    private String serverIP;
     private BufferedOutputStream outputStream;
     private BufferedInputStream inputStream;
     private JFrame clientWindow;
@@ -30,8 +30,9 @@ public class Client extends JFrame {
     private UserSessionManager myUserSession;
     private ArrayList<ClientConversationManager> conversations;
 
-    public Client() throws IOException {
+    public Client(String serverIP) throws IOException {
 
+        this.serverIP = serverIP;
         this.clientWindow = new JFrame();
         this.clientTextArea = new JTextArea();
         this.clientTextEntry = new JTextField();
@@ -90,8 +91,8 @@ public class Client extends JFrame {
         this.newMessageFrame.setSize(200, 200);
         this.newMessageFrame.setVisible(false);
 
-        this.clientSocket = new Socket("localhost", ServerPort);
-
+       // this.clientSocket = new Socket(this.serverIP, ServerPort);
+        this.clientSocket = new Socket(serverIP, ServerPort);
         clientTextArea.append("You're now connected \n");
         // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String test1 = "test1";
@@ -131,35 +132,6 @@ public class Client extends JFrame {
             System.out.println("Client closed");
         }
     }
-
-    private String setServerIP() {
-        String servIP;
-        JFrame setServerFrame = new JFrame();
-        setServerFrame.setTitle("Enter Server IP");
-        setServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setServerFrame.setSize(400, 100);
-        setServerFrame.setLocation(500, 500);
-        JTextArea setServerDialogue = new JTextArea();
-        setServerDialogue.append("Enter Server IP Address or localhost and Press Enter to connect");
-        JTextField enterServerIP = new JTextField();
-        enterServerIP.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                actionEvent.getActionCommand();
-                setServerFrame.setVisible(false);
-            }
-
-        });
-        setServerFrame.add(setServerDialogue);
-        setServerFrame.add(enterServerIP, BorderLayout.SOUTH);
-        setServerFrame.setVisible(true);
-        while (setServerFrame.isVisible()) {
-
-           }
-        return enterServerIP.getText();
-    }
-
-
 
     private void ErrorMethod(String errorAlert) {
         //UI for Error Messages to inform User.
@@ -262,7 +234,6 @@ public class Client extends JFrame {
                 System.out.println(convos.getActiveConversation());
                 if (convos.getOtherClient().equals(newMessage.getSender())) {
                     if (convos.getActiveConversation()) {
-                        System.out.println("First Condition");
                         System.out.println(newMessage.getActiveMessage());
                         convos.addMessage(newMessage.getMessage(), newMessage.getSender());
                     }
@@ -270,10 +241,8 @@ public class Client extends JFrame {
 
             }
         } else {
-            System.out.println("2nd Condition");
-            incomingConversation(newMessage.getSender(), newMessage);
+           incomingConversation(newMessage.getSender(), newMessage);
         }
-
     }
 
     public void setMyUserName(String name) { this.myUserName = name; }
@@ -283,7 +252,11 @@ public class Client extends JFrame {
     public UserSessionManager getMyUserSession() { return this.myUserSession; }
 
     public static void main(String[] args) throws IOException {
-       Client newClient = new Client();
-
+        try {
+            Client newClient = new Client("localhost");
+        } catch (ConnectException ex) {
+            System.out.println("SERVER NOT FOUND");
+            System.exit(-1);
+        }
     }
 }

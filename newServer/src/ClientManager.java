@@ -43,7 +43,6 @@ public class ClientManager implements Runnable {
                         }
                         Response.setText("");
 
-
                     }
                 }
         );
@@ -95,7 +94,7 @@ public class ClientManager implements Runnable {
 
     public void handleMessagePacket(MessagePacket messageIn) throws IOException {
         /*
-        routes the messages to the reciever via
+        routes the messages to the receiver via
         the packetHeader integer
         case 1, send message directly to server
         case 2, sends message through server from client to another client.
@@ -117,6 +116,9 @@ public class ClientManager implements Runnable {
     }
 
     private void clientToClient(MessagePacket messageIn) throws IOException {
+        /* Handles messages between clients by finding the right client to sendTo
+        in the clientList
+        */
         System.out.println(messageIn.getSendTo());
         String sendTo = messageIn.getSendTo();
         System.out.println(sendTo + "\n");
@@ -124,12 +126,11 @@ public class ClientManager implements Runnable {
         String message = messageIn.getMessage();
         String sender = messageIn.getSender();
         for (ClientManager clients : clientsList ) {
-            System.out.println(clients.userName + "\n");
+            //System.out.println(clients.userName + "\n");
             String clientCheck = (String) clients.userName;
-            if (clientCheck.equals(sendTo))
-                {
+            if (clientCheck.equals(sendTo)) {
                     sendMessagePacket(messageIn.getMessage(), messageIn.getSender(), sendTo, 2, clients.socket);
-                }
+            }
         }
     }
 
@@ -139,7 +140,6 @@ public class ClientManager implements Runnable {
         ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
         objOut.writeObject(newMessage);
         objOut.flush();
-
     }
 
     public void setUserList(UserSessionManager usersOnline ) { this.usersOnline = usersOnline; }
