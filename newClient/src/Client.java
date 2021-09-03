@@ -1,3 +1,8 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded ChatClient w/ GUI
+*/
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -61,7 +66,6 @@ public class Client extends JFrame {
         });
         this.clientPanel.add(clientTextArea, BorderLayout.SOUTH);
         this.clientPanel.add(new JScrollPane(clientList), BorderLayout.CENTER);
-        //this.clientWindow.add(clientTextEntry, BorderLayout.SOUTH);
         this.clientWindow.add(clientPanel);
         this.clientWindow.setSize(500, 500);
         this.clientWindow.setVisible(true);
@@ -95,9 +99,9 @@ public class Client extends JFrame {
         this.clientSocket = new Socket(serverIP, ServerPort);
         clientTextArea.append("You're now connected \n");
         // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String test1 = "test1";
-        String test2 = "test2";
-        String test3 = "test3";
+        String test1 = "Client";
+        String test2 = "New Connection";
+        String test3 = "Server";
         sendMessage(test1, test2, test3, 1);
 
         while (true) {
@@ -238,7 +242,6 @@ public class Client extends JFrame {
                         convos.addMessage(newMessage.getMessage(), newMessage.getSender());
                     }
                 }
-
             }
         } else {
            incomingConversation(newMessage.getSender(), newMessage);

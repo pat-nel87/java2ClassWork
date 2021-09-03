@@ -1,7 +1,14 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded ChatClient w/ GUI
+*/
+
 import java.io.Serializable;
 
 public class MessagePacket implements Serializable {
-
+    /* A serializable class for
+    sending messages and routing data between client and server programs.
+    */
     private String message;
     private String sender;
     private String sendTo;

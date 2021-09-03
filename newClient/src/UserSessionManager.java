@@ -1,3 +1,7 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded ChatClient w/ GUI
+*/
 import java.io.Serializable;
 import java.util.ArrayList;
 

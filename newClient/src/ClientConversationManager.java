@@ -1,9 +1,13 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded ChatClient w/ GUI
+*/
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
@@ -119,25 +123,5 @@ public class ClientConversationManager implements Runnable {
             objOut.flush();
         }
 
-        public void handleMessagePacket (MessagePacket messageIn){
-        ///*
-        //routes the messages to the reciever via
-        //the packetHeader integer
-        //case 1, message is from Server
-        //case 2, message is from other client.
-        //*/
-            switch (messageIn.getPacketHeader()) {
-                case 1: {
-                    if (messageIn.getActiveMessage() == false) {
-                        break;
-                    }
-                    break;
-                }
-                case 2: {
-                    conversationDialogue.append(messageIn.getMessage());
-                    System.out.println("Message slaps bacon");
-                    break;
-                }
-            }
-        }
+
     }

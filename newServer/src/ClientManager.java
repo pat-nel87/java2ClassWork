@@ -1,13 +1,24 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded Chat Server w/ GUI
+*/
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class ClientManager implements Runnable {
-
+    /* A class to be run as a thread
+       by server class, representing
+       each client Connection and
+       managing the I/O with
+       each connection.
+    */
     final String userName;
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
@@ -63,8 +74,6 @@ public class ClientManager implements Runnable {
                try {
                    ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream());
                    Object newObj = objIn.readObject();
-
-
                    if (newObj instanceof MessagePacket) {
                        MessagePacket newMessage = (MessagePacket) newObj;
                        handleMessagePacket(newMessage);
@@ -108,7 +117,6 @@ public class ClientManager implements Runnable {
             }
             case 2:
             {
-                System.out.println("\n " + messageIn.getMessage());
                 clientToClient(messageIn);
                 break;
             }
@@ -119,14 +127,8 @@ public class ClientManager implements Runnable {
         /* Handles messages between clients by finding the right client to sendTo
         in the clientList
         */
-        System.out.println(messageIn.getSendTo());
         String sendTo = messageIn.getSendTo();
-        System.out.println(sendTo + "\n");
-
-        String message = messageIn.getMessage();
-        String sender = messageIn.getSender();
         for (ClientManager clients : clientsList ) {
-            //System.out.println(clients.userName + "\n");
             String clientCheck = (String) clients.userName;
             if (clientCheck.equals(sendTo)) {
                     sendMessagePacket(messageIn.getMessage(), messageIn.getSender(), sendTo, 2, clients.socket);
@@ -137,11 +139,15 @@ public class ClientManager implements Runnable {
     public void sendMessagePacket(String message, String userName, String sendTo, int packetHeader, Socket socket) throws IOException {
         /* creates and sends a messagePacket to desired location  */
         MessagePacket newMessage = new MessagePacket(message, userName, sendTo, packetHeader);
+        try{
         ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream());
         objOut.writeObject(newMessage);
-        objOut.flush();
+        objOut.flush(); }
+        catch (SocketException s) {
+            serverMessageDiag.append("Client Connection Lost");
+        }
     }
-
+    // Standard setters/getters for values that need to be modified in this class
     public void setUserList(UserSessionManager usersOnline ) { this.usersOnline = usersOnline; }
     public UserSessionManager getUserList() { return this.usersOnline; }
 

@@ -1,3 +1,7 @@
+/*
+Patrick Nelson 2021
+Java Multi-threaded Chat Server w/ GUI
+*/
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -108,6 +112,10 @@ public class Server extends JFrame {
     }
 
     private void sendClientLists() throws IOException {
+        //method to update clientLists maintained by clientManagers
+        //methods to filter out duplicates don't seem to be working in most cases on the client side
+        //I think the issue lies with the way the list is added to the GUI on client program.
+        //will revisit.
         for (ClientManager clients : clientList) {
             if (clients.loggedOn == true) {
                 clients.setClientsList(clientList);
@@ -143,5 +151,4 @@ public class Server extends JFrame {
         Server server = new Server();
 
     }
-
 }
