@@ -2,7 +2,6 @@
 Patrick Nelson 2021
 Java Multi-threaded ChatClient w/ GUI
 */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -51,32 +50,36 @@ public class Client extends JFrame {
                 }
         );
         this.clientPanel = new JPanel();
+        this.clientWindow.setTitle("User List");
         this.clientListModel = new DefaultListModel<>();
         this.clientList = new JList<>(clientListModel);
+        clientList.setBackground(Color.BLACK);
+        clientList.setForeground(Color.GREEN);
+        clientList.setFont(new Font("Monospaced", Font.PLAIN, 12));
         this.conversations = new ArrayList<>();
         clientList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() > 1) {
                     String temp = (String) clientList.getSelectedValue();
-                    //System.out.println(clientList.getSelectedValue());
                     startConversation(temp);
                 }
             }
         });
-        this.clientPanel.add(clientTextArea, BorderLayout.SOUTH);
-        this.clientPanel.add(new JScrollPane(clientList), BorderLayout.CENTER);
+        this.clientPanel.setBackground(Color.BLACK);
+        this.clientPanel.add(new JScrollPane(clientList), BorderLayout.SOUTH);
         this.clientWindow.add(clientPanel);
-        this.clientWindow.setSize(500, 500);
+        this.clientWindow.setSize(500, 200);
         this.clientWindow.setVisible(true);
         this.clientWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        this.clientWindow.setLocationRelativeTo(null);
         this.newMessageFrame = new JFrame();
         this.newMessageDiag = new JTextArea();
         this.newMessageEntry = new JTextField();
         this.newMessageFrame.add(newMessageDiag);
         this.newMessageFrame.add(newMessageEntry, BorderLayout.SOUTH);
         this.newMessageFrame.setTitle("Talking to Server");
+        this.newMessageFrame.setLocationRelativeTo(clientWindow);
         newMessageEntry.addActionListener(
                 new ActionListener() {
                     @Override
@@ -94,8 +97,6 @@ public class Client extends JFrame {
         );
         this.newMessageFrame.setSize(200, 200);
         this.newMessageFrame.setVisible(false);
-
-       // this.clientSocket = new Socket(this.serverIP, ServerPort);
         this.clientSocket = new Socket(serverIP, ServerPort);
         newMessageDiag.setBackground(Color.BLACK);
         newMessageEntry.setBackground(Color.BLACK);
@@ -104,8 +105,7 @@ public class Client extends JFrame {
         newMessageEntry.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         newMessageDiag.setFont(new Font("Monospaced", Font.PLAIN, 12));
         newMessageDiag.setForeground(Color.GREEN);
-        clientTextArea.append("You're now connected \n");
-        // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
         String test1 = "Client";
         String test2 = "New Connection";
         String test3 = "Server";
@@ -238,6 +238,9 @@ public class Client extends JFrame {
     }
 
     public void handleConversation(MessagePacket newMessage) {
+        /*
+         Handles conversations, routing messages to the correct pre-existing conversations between clients
+         */
         System.out.println("Inside handleConversation");
         System.out.println(conversations.size());
         if (conversations.size() > 0) {

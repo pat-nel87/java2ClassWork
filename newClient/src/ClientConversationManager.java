@@ -64,6 +64,7 @@ public class ClientConversationManager implements Runnable {
         conversationEntry.setBackground(Color.BLACK);
         conversationEntry.setFont(new Font("Monospaced", Font.PLAIN, 12));
         conversationEntry.setForeground(Color.GREEN);
+        conversationEntry.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         conversationDialogue.setFont(new Font("Monospaced", Font.PLAIN, 12));
         conversationDialogue.setForeground(Color.GREEN);
         conversationWindow.setVisible(true);
@@ -98,6 +99,14 @@ public class ClientConversationManager implements Runnable {
         );
         conversationWindow.add(conversationDialogue);
         conversationWindow.add(conversationEntry, BorderLayout.SOUTH);
+        conversationDialogue.setBackground(Color.BLACK);
+        conversationEntry.setBackground(Color.BLACK);
+        conversationEntry.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        conversationEntry.setForeground(Color.GREEN);
+        conversationEntry.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        conversationDialogue.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        conversationDialogue.setForeground(Color.GREEN);
+        conversationWindow.setVisible(true);
         conversationWindow.setTitle("Chatting with " + otherClient);
         conversationWindow.setSize(200, 200);
         conversationWindow.setVisible(true);
@@ -128,6 +137,4 @@ public class ClientConversationManager implements Runnable {
             objOut.writeObject(newMessage);
             objOut.flush();
         }
-
-
     }
