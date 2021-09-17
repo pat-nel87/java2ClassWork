@@ -60,6 +60,12 @@ public class ClientConversationManager implements Runnable {
         conversationWindow.add(conversationEntry, BorderLayout.SOUTH);
         conversationWindow.setTitle("Chatting with " + otherClient);
         conversationWindow.setSize(200, 200);
+        conversationDialogue.setBackground(Color.BLACK);
+        conversationEntry.setBackground(Color.BLACK);
+        conversationEntry.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        conversationEntry.setForeground(Color.GREEN);
+        conversationDialogue.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        conversationDialogue.setForeground(Color.GREEN);
         conversationWindow.setVisible(true);
 
     }

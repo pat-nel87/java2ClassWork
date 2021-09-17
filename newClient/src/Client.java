@@ -97,6 +97,13 @@ public class Client extends JFrame {
 
        // this.clientSocket = new Socket(this.serverIP, ServerPort);
         this.clientSocket = new Socket(serverIP, ServerPort);
+        newMessageDiag.setBackground(Color.BLACK);
+        newMessageEntry.setBackground(Color.BLACK);
+        newMessageEntry.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        newMessageEntry.setForeground(Color.GREEN);
+        newMessageEntry.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        newMessageDiag.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        newMessageDiag.setForeground(Color.GREEN);
         clientTextArea.append("You're now connected \n");
         // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String test1 = "Client";
