@@ -33,7 +33,6 @@ public class anySequenceRecursive {
                 counter = inputSequence.length()-1;
                 indication = (inputSequence.length() * -1) + 1;
             }
-
         }
         if (counter == -1) {
             /*

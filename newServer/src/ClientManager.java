@@ -41,6 +41,13 @@ public class ClientManager implements Runnable {
         serverMessageFrame.setVisible(false);
         this.serverMessageDiag = new JTextArea();
         this.Response = new JTextField();
+        serverMessageDiag.setBackground(Color.BLACK);
+        serverMessageDiag.setForeground(Color.GREEN);
+        serverMessageDiag.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        Response.setBackground(Color.BLACK);
+        Response.setForeground(Color.GREEN);
+        Response.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        Response.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         Response.addActionListener(
                 new ActionListener() {
                     @Override

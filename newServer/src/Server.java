@@ -23,7 +23,6 @@ public class Server extends JFrame {
 
     public Server()
     {
-        super("Server Window");
         serverWindow = new JFrame();
         serverDialogue = new JTextArea();
         serverEntryField = new JTextField();
@@ -36,17 +35,26 @@ public class Server extends JFrame {
                     }
                 }
         );
+        serverWindow.setTitle("Server Operations");
         serverWindow.add(serverDialogue);
         serverWindow.add(serverEntryField, BorderLayout.SOUTH);
-        serverWindow.setSize(500,500);
+        serverWindow.setSize(500,150);
         serverWindow.setVisible(true);
         serverWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        serverWindow.setLocationRelativeTo(null);
+        serverDialogue.setBackground(Color.BLACK);
+        serverDialogue.setForeground(Color.GREEN);
+        serverDialogue.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        serverEntryField.setBackground(Color.BLACK);
+        serverEntryField.setForeground(Color.GREEN);
+        serverEntryField.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        serverEntryField.setFont(new Font("Monospaced", Font.PLAIN, 12));
         clientList = new ArrayList<ClientManager>();
         clientNumber = 0;
 
         try {
             serverSocket = new ServerSocket(8818);
-            serverDialogue.append("Server is now listening on Port 8818 \n");
+            serverDialogue.append("SERVER IS NOW LISTENING ON PORT 8818 \n");
             usersOnline = new UserSessionManager(new ArrayList<>());
             while (true) {
                 Socket connection = null;
